@@ -49,6 +49,7 @@ module.exports = {
 
   // configure webpack-dev-server
   devServer: {
+    host: '0.0.0.0',
     hot: true,
     open: true
   }
