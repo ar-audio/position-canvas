@@ -3,30 +3,21 @@ import io from 'socket.io-client'
 import * as THREE from 'THREE'
 
 window.THREE = THREE
+const scene = new window.THREE.Scene()
+window.scene = scene
 
 const socket = io('http://192.168.0.101:3000')
 
-const scene = new window.THREE.Scene()
-window.scene = scene
 const camera = new window.THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
+camera.position.x = 0
+camera.position.y = 0
+camera.position.z = 5
 
-const renderer = new window.THREE.WebGLRenderer()
+const renderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
 
-var ambientLight = new window.THREE.AmbientLight(0x0c0c0c)
-window.scene.add(ambientLight)
-
-var spotLight = new window.THREE.SpotLight(0xffffff)
-spotLight.position.set(-30, 60, 60)
-spotLight.castShadow = true
-window.scene.add(spotLight)
-
-const geometry = new window.THREE.BoxGeometry(1, 2, 0.2)
-const material = new window.THREE.MeshLambertMaterial({ color: 'white' })
-const cube = new window.THREE.Mesh(geometry, material)
-window.scene.add(cube)
-
+// create coordinate system
 const from = new THREE.Vector3(0, 0, 0)
 const x = new THREE.Vector3(1, 0, 0)
 const y = new THREE.Vector3(0, 1, 0)
@@ -36,22 +27,33 @@ for (let [i, to] of [x, y, z].entries()) {
   const direction = to.clone().sub(from)
   const length = direction.length()
 
+  // colors:
+  // x -> blue
+  // y -> green
+  // z -> red
   const arrowHelper = new THREE.ArrowHelper(direction.normalize(), from, length, (0xff << (i * 8)))
   scene.add(arrowHelper)
 }
 
-camera.position.x = 0
-camera.position.y = 0
-camera.position.z = 5
+const clientCalculated = new THREE.Vector3(1, 0, 0)
+const clientDirection = clientCalculated.clone().sub(from)
+const clientLength = clientDirection.length()
+const clientCalculatedArrow = new THREE.ArrowHelper(clientDirection.normalize(), from, clientLength, 'pink')
+const clientCalculatedArrow2 = new THREE.ArrowHelper(clientDirection.normalize(), from, clientLength, 'pink')
+scene.add(clientCalculatedArrow)
+scene.add(clientCalculatedArrow2)
+
+let phoneArraows = [clientCalculatedArrow, clientCalculatedArrow2]
 
 socket.on('rotation', msg => {
-  const [x, y, z, w] = JSON.parse(msg)
-
-  const quaternion = new window.THREE.Quaternion(x, y, z, w)
-  cube.setRotationFromQuaternion(quaternion)
-
-  renderer.render(window.scene, camera)
+  // rotate org phone vector by quaternion
+  const rotation = JSON.parse(msg)
+  rotation.ears.forEach((ear, i) => {
+    const [x, y, z] = ear
+    const vector = new THREE.Vector3(x, y, z)
+    phoneArraows[i].setDirection(vector.normalize())
+  })
+  renderer.render(scene, camera)
 })
 
-cube.position.set(0, 0, 0)
-renderer.render(window.scene, camera)
+renderer.render(scene, camera)
