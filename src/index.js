@@ -6,7 +6,7 @@ window.THREE = THREE
 const scene = new window.THREE.Scene()
 window.scene = scene
 
-const socket = io('http://192.168.0.101:3000')
+const socket = io('http://localhost:3000')
 
 const camera = new window.THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.position.x = 0
@@ -40,8 +40,10 @@ const clientDirection = clientCalculated.clone().sub(from)
 const clientLength = clientDirection.length()
 const clientCalculatedArrow = new THREE.ArrowHelper(clientDirection.normalize(), from, clientLength, 'pink')
 const clientCalculatedArrow2 = new THREE.ArrowHelper(clientDirection.normalize(), from, clientLength, 'pink')
+const otherPlayerVector = new THREE.ArrowHelper(clientDirection.normalize(), from, clientLength, 'yellow')
 scene.add(clientCalculatedArrow)
 scene.add(clientCalculatedArrow2)
+scene.add(otherPlayerVector)
 
 let phoneArraows = [clientCalculatedArrow, clientCalculatedArrow2]
 
@@ -53,6 +55,11 @@ socket.on('rotation', msg => {
     const vector = new THREE.Vector3(x, y, z)
     phoneArraows[i].setDirection(vector.normalize())
   })
+
+  const [x, y, z] = rotation.vectorToOtherPlayer
+  const vector = new THREE.Vector3(x, y, z)
+  otherPlayerVector.setDirection(vector.normalize())
+  otherPlayerVector.setLength(1 + rotation.distance)
   renderer.render(scene, camera)
 })
 
