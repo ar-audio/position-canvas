@@ -6,7 +6,7 @@ window.THREE = THREE
 const scene = new window.THREE.Scene()
 window.scene = scene
 
-const socket = io('http://localhost:3000')
+const socket = io('http://159.89.110.19:3001')
 
 const camera = new window.THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.position.x = 0
