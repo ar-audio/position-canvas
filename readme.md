@@ -1,4 +1,9 @@
-# Position Canvas
+# Web debugger frontend
+
+## Info
+
+This is connects to a [socket.io](https://socket.io/) server which currently is online under: http://159.89.110.19:3001/
+If for some reason this is no longer the case you can find the server in this organisation under [web-debugger-backend](https://github.com/ar-marco-polo/web-debugger-backend)
 
 ## Setup
 
